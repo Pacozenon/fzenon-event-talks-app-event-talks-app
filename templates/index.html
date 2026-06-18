@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Explorer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Background Blur Decorative Elements -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar or Topbar Header depending on responsiveness -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-wrapper">
+                    <i class="fa-solid fa-database logo-icon"></i>
+                    <div class="logo-pulse"></div>
+                </div>
+                <div>
+                    <h1>BigQuery</h1>
+                    <p class="subtitle">Release Notes Explorer</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn-icon" aria-label="Toggle Theme" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="refresh-btn" class="btn-primary" title="Refresh Release Notes">
+                    <i class="fa-solid fa-rotate"></i> <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="dashboard-layout">
+            <!-- Sidebar for statistics and overview -->
+            <aside class="dashboard-sidebar">
+                <div class="sidebar-card glass-panel">
+                    <h3><i class="fa-solid fa-chart-pie"></i> Overview</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item" data-category="All">
+                            <span class="stat-val" id="stat-total">0</span>
+                            <span class="stat-label">Total Notes</span>
+                        </div>
+                        <div class="stat-item" data-category="Feature">
+                            <span class="stat-val text-feature" id="stat-feature">0</span>
+                            <span class="stat-label">Features</span>
+                        </div>
+                        <div class="stat-item" data-category="Change">
+                            <span class="stat-val text-change" id="stat-change">0</span>
+                            <span class="stat-label">Changes</span>
+                        </div>
+                        <div class="stat-item" data-category="Breaking">
+                            <span class="stat-val text-breaking" id="stat-breaking">0</span>
+                            <span class="stat-label">Breaking</span>
+                        </div>
+                        <div class="stat-item" data-category="Issue">
+                            <span class="stat-val text-issue" id="stat-issue">0</span>
+                            <span class="stat-label">Issues</span>
+                        </div>
+                        <div class="stat-item" data-category="Announcement">
+                            <span class="stat-val text-announcement" id="stat-announcement">0</span>
+                            <span class="stat-label">Announcements</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card glass-panel info-card">
+                    <h3><i class="fa-solid fa-info-circle"></i> About Feed</h3>
+                    <p>This application fetches live official release notes for Google Cloud BigQuery.</p>
+                    <div class="feed-source">
+                        <span>Source XML:</span>
+                        <a href="https://docs.cloud.google.com/feeds/bigquery-release-notes.xml" target="_blank" rel="noopener">
+                            docs.cloud.google.com <i class="fa-solid fa-external-link text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="feed-status" id="cache-status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Status unknown</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <section class="dashboard-content">
+                <!-- Filter Bar -->
+                <div class="filter-bar glass-panel">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Search release notes (keywords, features, etc.)...">
+                        <button id="search-clear" class="btn-clear" style="display: none;">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="category-filters" id="category-pills">
+                        <button class="pill-btn active" data-filter="All">All</button>
+                        <button class="pill-btn" data-filter="Feature"><i class="fa-solid fa-star pill-icon"></i> Features</button>
+                        <button class="pill-btn" data-filter="Change"><i class="fa-solid fa-sliders pill-icon"></i> Changes</button>
+                        <button class="pill-btn" data-filter="Breaking"><i class="fa-solid fa-triangle-exclamation pill-icon"></i> Breaking</button>
+                        <button class="pill-btn" data-filter="Issue"><i class="fa-solid fa-bug pill-icon"></i> Issues</button>
+                        <button class="pill-btn" data-filter="Announcement"><i class="fa-solid fa-bullhorn pill-icon"></i> Announcements</button>
+                    </div>
+                </div>
+
+                <!-- Feed Content -->
+                <div class="notes-container" id="notes-list">
+                    <!-- Skeleton loaders will be inserted here by JS -->
+                    <div class="skeleton-card glass-panel">
+                        <div class="skeleton-header">
+                            <div class="skeleton-badge"></div>
+                            <div class="skeleton-date"></div>
+                        </div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton-card glass-panel">
+                        <div class="skeleton-header">
+                            <div class="skeleton-badge"></div>
+                            <div class="skeleton-date"></div>
+                        </div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                    <div class="skeleton-card glass-panel">
+                        <div class="skeleton-header">
+                            <div class="skeleton-badge"></div>
+                            <div class="skeleton-date"></div>
+                        </div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                </div>
+
+                <!-- No Results / Empty State -->
+                <div id="empty-state" class="empty-state glass-panel" style="display: none;">
+                    <i class="fa-solid fa-folder-open empty-icon"></i>
+                    <h3>No Release Notes Found</h3>
+                    <p>Try modifying your search keywords or choosing a different category filter.</p>
+                    <button id="reset-filters-btn" class="btn-secondary">Reset Filters</button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>BigQuery Release Notes Explorer &bull; Made with Flask &amp; CSS Grid</p>
+        </footer>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Scroll to top" title="Scroll to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Main JavaScript file -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

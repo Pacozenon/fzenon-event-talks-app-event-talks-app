@@ -1,0 +1,27 @@
+# Python virtual environment
+venv/
+ENV/
+env/
+
+# Python cache / compiles
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Flask instance folder
+instance/
+
+# Environment variables
+.env
+.flaskenv
+
+# IDE / Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local project files
+scratch_fetch.py
